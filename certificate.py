@@ -9,7 +9,7 @@ import pandas as pd
 import streamlit as st
 import os  # Import the os module
 
-def generate_certificate(student, course, id, output_path):
+def generate_certificate(student, course, id):
     packet = io.BytesIO()
     width, height = 960, 720
     c = canvas.Canvas(packet, pagesize=(width, height)) 
@@ -43,15 +43,7 @@ def generate_certificate(student, course, id, output_path):
     new_pdf = PdfReader(packet)               
     page.merge_page(new_pdf.pages[0])       
 
-    file_name = student.replace(" ","_")
-    certificate = os.path.join(output_path, f"{file_name}_certificate.pdf")  # Specify the output path
-    outputStream = open(certificate, "wb")
-    output = PdfWriter()
-    output.add_page(page)
-    output.write(outputStream)
-    outputStream.close()
-
-    return certificate
+    return page
 
 # Streamlit UI
 st.title("Certificate Generator")
@@ -59,11 +51,9 @@ st.title("Certificate Generator")
 # Add file uploader for participants Excel file
 uploaded_file = st.file_uploader("Upload participants Excel file", type="xlsx")
 
-# Add text input for output path
-output_path = st.text_input("Enter output path")
-
-if uploaded_file and output_path:
+if uploaded_file:
     participants = pd.read_excel(uploaded_file)
+    generated_certificates = []
 
     for i in range(len(participants)):
         student = participants.loc[i, 'Student']
@@ -71,5 +61,20 @@ if uploaded_file and output_path:
         id = participants.loc[i, 'Id']
 
         st.write(f"Generating certificate for: {student}")
-        certificate = generate_certificate(student, course, id, output_path)
-        st.write(f"Certificate generated: {certificate}")
+        certificate_page = generate_certificate(student, course, id)
+        generated_certificates.append(certificate_page)
+
+    if st.button("Download All Certificates"):
+        output_path = os.path.join(os.getcwd(), "certificates")
+        os.makedirs(output_path, exist_ok=True)
+        
+        for index, certificate_page in enumerate(generated_certificates):
+            file_name = participants.loc[index, 'Student'].replace(" ", "_")
+            certificate_path = os.path.join(output_path, f"{file_name}_certificate.pdf")
+            
+            output = PdfWriter()
+            output.add_page(certificate_page)
+            with open(certificate_path, "wb") as f:
+                output.write(f)
+            
+            st.download_button(label=f"Download Certificate {index+1}", data=open(certificate_path, "rb").read(), file_name=f"{file_name}_certificate.pdf")
