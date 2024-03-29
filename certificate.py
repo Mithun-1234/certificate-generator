@@ -11,7 +11,7 @@ import os
 import shutil
 import zipfile
 
-def generate_certificate(student, course, id):
+def generate_certificate(student, course, id, score):
     packet = io.BytesIO()
     width, height = 960, 720
     c = canvas.Canvas(packet, pagesize=(width, height))
@@ -35,6 +35,11 @@ def generate_certificate(student, course, id):
     c.setFillColorRGB(0, 0, 0)
     c.setFont('Helvetica', 13)
     c.drawString(135, 60, id)
+
+    #score
+    c.setFillColorRGB(1/255, 37/255, 84/255)  
+    c.setFont('Helvetica-Bold', 15)  
+    c.drawString(498, 192.5, str(score))
 
     # Save changes
     c.save()
@@ -67,6 +72,7 @@ if uploaded_file:
                 student = participants.loc[i, 'Student']
                 course = participants.loc[i, 'Course']
                 id = participants.loc[i, 'Id']
+                score = participants.loc[i, 'Score']
 
                 st.write(f"Generating certificate for: {student}")
                 certificate_page = generate_certificate(student, course, id)
