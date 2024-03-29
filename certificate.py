@@ -75,7 +75,7 @@ if uploaded_file:
                 score = participants.loc[i, 'Score']
 
                 st.write(f"Generating certificate for: {student}")
-                certificate_page = generate_certificate(student, course, id)
+                certificate_page = generate_certificate(student, course, id, score)
                 generated_certificates.append(certificate_page)
 
                 file_name = student.replace(" ", "_")
