@@ -32,9 +32,9 @@ def generate_certificate(student, course, id, score):
     c.drawString(370, 214, course)
 
     # ID
-    c.setFillColorRGB(0, 0, 0)
-    c.setFont('Helvetica', 13)
-    c.drawString(135, 60, id)
+    c.setFillColorRGB(0.2, 0.2, 0.2)        
+    c.setFont('Vera', 14) 
+    c.drawString(135, 60, str(id))
 
     #score
     c.setFillColorRGB(1/255, 37/255, 84/255)  
