@@ -57,23 +57,22 @@ if uploaded_file:
     participants = pd.read_excel(uploaded_file)
     generated_certificates = []
 
-    for i in range(len(participants)):
-        student = participants.loc[i, 'Student']
-        course = participants.loc[i, 'Course']
-        id = participants.loc[i, 'Id']
-
-        st.write(f"Generating certificate for: {student}")
-        certificate_page = generate_certificate(student, course, id)
-        generated_certificates.append(certificate_page)
-
-    if st.button("Download All Certificates"):
+    if st.button("Generate and Download All Certificates"):
         output_path = os.path.join(os.getcwd(), "certificates")
         os.makedirs(output_path, exist_ok=True)
 
         zip_file_path = os.path.join(os.getcwd(), "certificates.zip")
         with zipfile.ZipFile(zip_file_path, 'w') as zipf:
-            for index, certificate_page in enumerate(generated_certificates):
-                file_name = participants.loc[index, 'Student'].replace(" ", "_")
+            for i in range(len(participants)):
+                student = participants.loc[i, 'Student']
+                course = participants.loc[i, 'Course']
+                id = participants.loc[i, 'Id']
+
+                st.write(f"Generating certificate for: {student}")
+                certificate_page = generate_certificate(student, course, id)
+                generated_certificates.append(certificate_page)
+
+                file_name = student.replace(" ", "_")
                 certificate_path = os.path.join(output_path, f"{file_name}_certificate.pdf")
 
                 output = PdfWriter()
