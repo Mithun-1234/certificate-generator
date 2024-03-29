@@ -7,41 +7,43 @@ from reportlab.pdfbase.ttfonts import TTFont
 import io
 import pandas as pd
 import streamlit as st
-import os  # Import the os module
+import os
+import shutil
+import zipfile
 
 def generate_certificate(student, course, id):
     packet = io.BytesIO()
     width, height = 960, 720
-    c = canvas.Canvas(packet, pagesize=(width, height)) 
+    c = canvas.Canvas(packet, pagesize=(width, height))
 
     reportlab.rl_config.warnOnMissingFontGlyphs = 0
-    pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf')) 
-    pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))    
-    pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf')) 
+    pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+    pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
+    pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
 
     # Student
-    c.setFillColorRGB(0, 0, 0)       
-    c.setFont('VeraBd', 32)        
-    c.drawString(170, 255, student)  
+    c.setFillColorRGB(0, 0, 0)
+    c.setFont('VeraBd', 32)
+    c.drawString(170, 255, student)
 
     # Course
-    c.setFillColorRGB(1/255, 37/255, 84/255)  
-    c.setFont('Helvetica-Bold', 15)  
-    c.drawString(370, 214, course)    
+    c.setFillColorRGB(1/255, 37/255, 84/255)
+    c.setFont('Helvetica-Bold', 15)
+    c.drawString(370, 214, course)
 
     # ID
-    c.setFillColorRGB(0, 0, 0)       
-    c.setFont('Helvetica', 13)         
-    c.drawString(135, 60, id)  
+    c.setFillColorRGB(0, 0, 0)
+    c.setFont('Helvetica', 13)
+    c.drawString(135, 60, id)
 
     # Save changes
     c.save()
 
-    existing_pdf = PdfReader(open("certificate_template.pdf", "rb")) 
-    page = existing_pdf.pages[0]             
-    packet.seek(0)                           
-    new_pdf = PdfReader(packet)               
-    page.merge_page(new_pdf.pages[0])       
+    existing_pdf = PdfReader(open("certificate_template.pdf", "rb"))
+    page = existing_pdf.pages[0]
+    packet.seek(0)
+    new_pdf = PdfReader(packet)
+    page.merge_page(new_pdf.pages[0])
 
     return page
 
@@ -67,14 +69,23 @@ if uploaded_file:
     if st.button("Download All Certificates"):
         output_path = os.path.join(os.getcwd(), "certificates")
         os.makedirs(output_path, exist_ok=True)
-        
-        for index, certificate_page in enumerate(generated_certificates):
-            file_name = participants.loc[index, 'Student'].replace(" ", "_")
-            certificate_path = os.path.join(output_path, f"{file_name}_certificate.pdf")
-            
-            output = PdfWriter()
-            output.add_page(certificate_page)
-            with open(certificate_path, "wb") as f:
-                output.write(f)
-            
-            st.download_button(label=f"Download Certificate {index+1}", data=open(certificate_path, "rb").read(), file_name=f"{file_name}_certificate.pdf")
+
+        zip_file_path = os.path.join(os.getcwd(), "certificates.zip")
+        with zipfile.ZipFile(zip_file_path, 'w') as zipf:
+            for index, certificate_page in enumerate(generated_certificates):
+                file_name = participants.loc[index, 'Student'].replace(" ", "_")
+                certificate_path = os.path.join(output_path, f"{file_name}_certificate.pdf")
+
+                output = PdfWriter()
+                output.add_page(certificate_page)
+                with open(certificate_path, "wb") as f:
+                    output.write(f)
+
+                zipf.write(certificate_path, arcname=f"{file_name}_certificate.pdf")
+
+        with open(zip_file_path, "rb") as f:
+            st.download_button(label="Download All Certificates", data=f.read(), file_name="certificates.zip", mime="application/zip")
+
+        # Clean up generated certificate files and zip
+        shutil.rmtree(output_path)
+        os.remove(zip_file_path)
