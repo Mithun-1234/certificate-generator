@@ -11,7 +11,7 @@ import os
 import shutil
 import zipfile
 
-def generate_certificate_template1(student, course, id, score):
+def generate_course_certificate(student, course, id, score):
     packet = io.BytesIO()
     width, height = 960, 720
     c = canvas.Canvas(packet, pagesize=(width, height))
@@ -44,7 +44,7 @@ def generate_certificate_template1(student, course, id, score):
     # Save changes
     c.save()
 
-    existing_pdf = PdfReader(open("certificate_template.pdf", "rb"))
+    existing_pdf = PdfReader(open("course_completion_certificate.pdf", "rb"))
     page = existing_pdf.pages[0]
     packet.seek(0)
     new_pdf = PdfReader(packet)
@@ -53,7 +53,7 @@ def generate_certificate_template1(student, course, id, score):
     return page
 
 
-def generate_certificate_template2(student, course, id, month, year):
+def generate_internship_certificate(student, course, id, month, year):
     packet = io.BytesIO()
     width, height = 960, 720
     c = canvas.Canvas(packet, pagesize=(width, height))
@@ -84,7 +84,7 @@ def generate_certificate_template2(student, course, id, month, year):
     # Save changes
     c.save()
 
-    existing_pdf = PdfReader(open("certificate_template.pdf", "rb"))
+    existing_pdf = PdfReader(open("Internship_certificate.pdf", "rb"))
     page = existing_pdf.pages[0]
     packet.seek(0)
     new_pdf = PdfReader(packet)
@@ -97,7 +97,7 @@ st.title("Certificate Generator")
 
 # Add file uploader for participants Excel file
 uploaded_file = st.file_uploader("Upload participants Excel file", type="xlsx")
-template_options = ["Template 1", "Template 2"]  # Add more template options here
+template_options = ["Course Completion Certificate", "Internship Certificate"]  # Add more template options here
 
 if uploaded_file:
     participants = pd.read_excel(uploaded_file)
@@ -120,13 +120,13 @@ if uploaded_file:
                 year = participants.loc[i, 'Year']
 
                 st.write(f"Generating certificate for: {student}")
-                if selected_template == "Template 1":
-                    certificate_page = generate_certificate_template1(student, course, id, month, year)
-                elif selected_template == "Template 2":
-                    certificate_page = generate_certificate_template2(student, course, id, month, year)
+                if selected_template == "Course Completion Certificate":
+                    certificate_page = generate_course_certificate(student, course, id, score)
+                elif selected_template == "Internship Certificate":
+                    certificate_page = generate_internship_certificate(student, course, id, month, year)
                 else:
                     # Default to Template 1
-                    certificate_page = generate_certificate_template1(student, course, id, month, year)
+                    certificate_page = generate_course_certificate(student, course, id, month, year)
 
                 generated_certificates.append(certificate_page)
 
