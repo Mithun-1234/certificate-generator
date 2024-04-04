@@ -113,11 +113,12 @@ if uploaded_file:
         zip_file_path = os.path.join(os.getcwd(), "certificates.zip")
         with zipfile.ZipFile(zip_file_path, 'w') as zipf:
             for i in range(len(participants)):
-                student = participants.loc[i, 'name']
-                course = participants.loc[i, 'course']
-                id = participants.loc[i, 'id']
-                month = participants.loc[i, 'month']
-                year = participants.loc[i, 'year']
+                student = participants.loc[i, 'Name']
+                course = participants.loc[i, 'Course']
+                id = participants.loc[i, 'Id']
+                score = participants.loc[i, 'Score']
+                month = participants.loc[i, 'Month']
+                year = participants.loc[i, 'Year']
 
                 st.write(f"Generating certificate for: {student}")
                 if selected_template == "Course Completion Certificate":
