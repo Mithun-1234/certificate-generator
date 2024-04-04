@@ -106,7 +106,7 @@ if uploaded_file:
     # Add template selection dropdown
     selected_template = st.selectbox("Select Certificate Template", template_options)
 
-    if st.button("Generate and Download All Certificates"):
+    if st.button("Generate Certificates"):
         if "Name" not in participants.columns or ("Score" not in participants.columns and selected_template == "Course Completion Certificate") or \
                 ("Month" not in participants.columns or "Year" not in participants.columns and selected_template == "Internship Certificate"):
             st.warning("Invalid Excel file or template selection. Please check your input and try again.")
