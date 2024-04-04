@@ -11,7 +11,7 @@ import os
 import shutil
 import zipfile
 
-def generate_certificate(student, course, id, score):
+def generate_certificate_template1(student, course, id, score):
     packet = io.BytesIO()
     width, height = 960, 720
     c = canvas.Canvas(packet, pagesize=(width, height))
@@ -32,14 +32,54 @@ def generate_certificate(student, course, id, score):
     c.drawString(370, 214, course)
 
     # ID
-    c.setFillColorRGB(0.2, 0.2, 0.2)        
-    c.setFont('Vera', 14) 
-    c.drawString(240, 25.5, str(id)) 
+    c.setFillColorRGB(0.2, 0.2, 0.2)
+    c.setFont('Vera', 14)
+    c.drawString(240, 25.5, str(id))
 
-    #score
-    c.setFillColorRGB(1/255, 37/255, 84/255)  
-    c.setFont('Helvetica-Bold', 15)  
+    # Score
+    c.setFillColorRGB(1/255, 37/255, 84/255)
+    c.setFont('Helvetica-Bold', 15)
     c.drawString(498, 192.5, str(score))
+
+    # Save changes
+    c.save()
+
+    existing_pdf = PdfReader(open("certificate_template.pdf", "rb"))
+    page = existing_pdf.pages[0]
+    packet.seek(0)
+    new_pdf = PdfReader(packet)
+    page.merge_page(new_pdf.pages[0])
+
+    return page
+
+
+def generate_certificate_template2(student, course, id, month, year):
+    packet = io.BytesIO()
+    width, height = 960, 720
+    c = canvas.Canvas(packet, pagesize=(width, height))
+
+    reportlab.rl_config.warnOnMissingFontGlyphs = 0
+    pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+    pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
+    pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
+
+    line = course + " in " + month + " " + str(year) + "."
+    num = " Certificate ID : " + id
+
+    # Student
+    c.setFillColorRGB(0, 0, 0)
+    c.setFont('VeraBd', 32)
+    c.drawString(170, 255, student)
+
+    # Course
+    c.setFillColorRGB(1/255, 37/255, 84/255)
+    c.setFont('Helvetica-Bold', 15)
+    c.drawString(348.5, 192.5, line)
+
+    # ID
+    c.setFillColorRGB(0.2, 0.2, 0.2)
+    c.setFont('Vera', 12)
+    c.drawString(135, 25.3, num)
 
     # Save changes
     c.save()
@@ -57,10 +97,14 @@ st.title("Certificate Generator")
 
 # Add file uploader for participants Excel file
 uploaded_file = st.file_uploader("Upload participants Excel file", type="xlsx")
+template_options = ["Template 1", "Template 2"]  # Add more template options here
 
 if uploaded_file:
     participants = pd.read_excel(uploaded_file)
     generated_certificates = []
+
+    # Add template selection dropdown
+    selected_template = st.selectbox("Select Certificate Template", template_options)
 
     if st.button("Generate and Download All Certificates"):
         output_path = os.path.join(os.getcwd(), "certificates")
@@ -72,10 +116,18 @@ if uploaded_file:
                 student = participants.loc[i, 'Student']
                 course = participants.loc[i, 'Course']
                 id = participants.loc[i, 'Id']
-                score = participants.loc[i, 'Score']
+                month = participants.loc[i, 'Month']
+                year = participants.loc[i, 'Year']
 
                 st.write(f"Generating certificate for: {student}")
-                certificate_page = generate_certificate(student, course, id, score)
+                if selected_template == "Template 1":
+                    certificate_page = generate_certificate_template1(student, course, id, month, year)
+                elif selected_template == "Template 2":
+                    certificate_page = generate_certificate_template2(student, course, id, month, year)
+                else:
+                    # Default to Template 1
+                    certificate_page = generate_certificate_template1(student, course, id, month, year)
+
                 generated_certificates.append(certificate_page)
 
                 file_name = student.replace(" ", "_")
