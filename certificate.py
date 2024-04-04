@@ -113,19 +113,19 @@ if uploaded_file:
         zip_file_path = os.path.join(os.getcwd(), "certificates.zip")
         with zipfile.ZipFile(zip_file_path, 'w') as zipf:
             for i in range(len(participants)):
-                student = participants.loc[i, 'Name']
-                course = participants.loc[i, 'Course']
+                student = participants.loc[i, 'Name']  # Corrected column name
+                course = participants.loc[i, 'Course']  # Corrected column name
                 id = participants.loc[i, 'Id']
-                month = participants.loc[i, 'Month']
-                year = participants.loc[i, 'Year']
-
-                st.write(f"Generating certificate for: {student}")
                 if selected_template == "Course Completion Certificate":
+                    score = participants.loc[i, 'Score']  # Corrected column name
                     certificate_page = generate_course_certificate(student, course, id, score)
                 elif selected_template == "Internship Certificate":
+                    month = participants.loc[i, 'Month']  # Corrected column name
+                    year = participants.loc[i, 'Year']  # Corrected column name
                     certificate_page = generate_internship_certificate(student, course, id, month, year)
                 else:
                     # Default to Course Completion Certificate
+                    score = participants.loc[i, 'Score']  # Corrected column name
                     certificate_page = generate_course_certificate(student, course, id, score)
 
                 generated_certificates.append(certificate_page)
