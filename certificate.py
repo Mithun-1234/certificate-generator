@@ -116,7 +116,6 @@ if uploaded_file:
                 student = participants.loc[i, 'Name']
                 course = participants.loc[i, 'Course']
                 id = participants.loc[i, 'Id']
-                score = participants.loc[i, 'Score']
                 month = participants.loc[i, 'Month']
                 year = participants.loc[i, 'Year']
 
