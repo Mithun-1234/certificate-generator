@@ -107,42 +107,46 @@ if uploaded_file:
     selected_template = st.selectbox("Select Certificate Template", template_options)
 
     if st.button("Generate and Download All Certificates"):
-        output_path = os.path.join(os.getcwd(), "certificates")
-        os.makedirs(output_path, exist_ok=True)
+        if "Name" not in participants.columns or ("Score" not in participants.columns and selected_template == "Course Completion Certificate") or \
+                ("Month" not in participants.columns or "Year" not in participants.columns and selected_template == "Internship Certificate"):
+            st.warning("Invalid Excel file or template selection. Please check your input and try again.")
+        else:
+            output_path = os.path.join(os.getcwd(), "certificates")
+            os.makedirs(output_path, exist_ok=True)
 
-        zip_file_path = os.path.join(os.getcwd(), "certificates.zip")
-        with zipfile.ZipFile(zip_file_path, 'w') as zipf:
-            for i in range(len(participants)):
-                student = participants.loc[i, 'Name']  # Corrected column name
-                course = participants.loc[i, 'Course']  # Corrected column name
-                id = participants.loc[i, 'Id']
-                if selected_template == "Course Completion Certificate":
-                    score = participants.loc[i, 'Score']  # Corrected column name
-                    certificate_page = generate_course_certificate(student, course, id, score)
-                elif selected_template == "Internship Certificate":
-                    month = participants.loc[i, 'Month']  # Corrected column name
-                    year = participants.loc[i, 'Year']  # Corrected column name
-                    certificate_page = generate_internship_certificate(student, course, id, month, year)
-                else:
-                    # Default to Course Completion Certificate
-                    score = participants.loc[i, 'Score']  # Corrected column name
-                    certificate_page = generate_course_certificate(student, course, id, score)
+            zip_file_path = os.path.join(os.getcwd(), "certificates.zip")
+            with zipfile.ZipFile(zip_file_path, 'w') as zipf:
+                for i in range(len(participants)):
+                    student = participants.loc[i, 'Name']  # Corrected column name
+                    course = participants.loc[i, 'Course']  # Corrected column name
+                    id = participants.loc[i, 'Id']
+                    if selected_template == "Course Completion Certificate":
+                        score = participants.loc[i, 'Score']  # Corrected column name
+                        certificate_page = generate_course_certificate(student, course, id, score)
+                    elif selected_template == "Internship Certificate":
+                        month = participants.loc[i, 'Month']  # Corrected column name
+                        year = participants.loc[i, 'Year']  # Corrected column name
+                        certificate_page = generate_internship_certificate(student, course, id, month, year)
+                    else:
+                        # Default to Course Completion Certificate
+                        score = participants.loc[i, 'Score']  # Corrected column name
+                        certificate_page = generate_course_certificate(student, course, id, score)
 
-                generated_certificates.append(certificate_page)
+                    generated_certificates.append(certificate_page)
 
-                file_name = student.replace(" ", "_")
-                certificate_path = os.path.join(output_path, f"{file_name}_certificate.pdf")
+                    file_name = student.replace(" ", "_")
+                    certificate_path = os.path.join(output_path, f"{file_name}_certificate.pdf")
 
-                output = PdfWriter()
-                output.add_page(certificate_page)
-                with open(certificate_path, "wb") as f:
-                    output.write(f)
+                    output = PdfWriter()
+                    output.add_page(certificate_page)
+                    with open(certificate_path, "wb") as f:
+                        output.write(f)
 
-                zipf.write(certificate_path, arcname=f"{file_name}_certificate.pdf")
+                    zipf.write(certificate_path, arcname=f"{file_name}_certificate.pdf")
 
-        with open(zip_file_path, "rb") as f:
-            st.download_button(label="Download All Certificates", data=f.read(), file_name="certificates.zip", mime="application/zip")
+            with open(zip_file_path, "rb") as f:
+                st.download_button(label="Download All Certificates", data=f.read(), file_name="certificates.zip", mime="application/zip")
 
-        # Clean up generated certificate files and zip
-        shutil.rmtree(output_path)
-        os.remove(zip_file_path)
+            # Clean up generated certificate files and zip
+            shutil.rmtree(output_path)
+            os.remove(zip_file_path)
