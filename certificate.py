@@ -107,9 +107,9 @@ if uploaded_file:
     selected_template = st.selectbox("Select Certificate Template", template_options)
 
     if st.button("Generate Certificates"):
-        if "Name" not in participants.columns or ("Score" not in participants.columns and selected_template == "Course Completion Certificate") or \
-                ("Month" not in participants.columns or "Year" not in participants.columns and selected_template == "Internship Certificate"):
+        if "Name" not in participants.columns or ("Score" not in participants.columns and selected_template == "Course Completion Certificate"):
             st.warning("Invalid Excel file or template selection. Please check your input and try again.")
+
         else:
             output_path = os.path.join(os.getcwd(), "certificates")
             os.makedirs(output_path, exist_ok=True)
