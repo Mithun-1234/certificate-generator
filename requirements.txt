@@ -1,0 +1,5 @@
+PyPDF2
+reportlab
+pandas
+streamlit
+openpyxl
