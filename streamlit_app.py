@@ -107,7 +107,7 @@ def generate_internship_certificate(name, course, id, month, year, duration):
     # Create variables to be added to the certificate template
     data1 = f"For outstanding completion of the {duration} internship program at"
     data2 = f"Clover Technologies in {course} in {month} {year}."
-    certificate_id = f"Certificate Id : {id}"
+    certificate_id = f"Certificate ID: {id}"
 
     # Set canvas conditions to add text to the template
     packet = io.BytesIO()
