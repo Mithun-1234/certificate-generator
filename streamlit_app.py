@@ -55,7 +55,7 @@ def send_emails(participants, subject, body, sender_email, sender_password):
 # Function to generate a course certificate
 def generate_course_certificate(name, course, id, score, month, year):
     # Create variables to be added to the certificate template
-    data = "For completing Basics of " + course
+    data = "For completing " + course
     data2 = "on " + str(month) + " " + str(year) + ", with a passing score of " + str(score) + "."
     certificate_id = "Certificate ID : " + str(id)
 
