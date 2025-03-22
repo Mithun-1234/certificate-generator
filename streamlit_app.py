@@ -72,7 +72,7 @@ def generate_course_certificate(name, course, id, score, month, year):
 
     # Set font features for each variable
     c.setFillColorRGB(0, 0, 0)
-    c.setFont('VeraBd', 32)
+    c.setFont('VeraBd', 25)
     c.drawString(170, 260, name)
 
     c.setFillColorRGB(1/255, 37/255, 84/255)
