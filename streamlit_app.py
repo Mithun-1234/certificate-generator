@@ -84,7 +84,7 @@ def generate_course_certificate(name, course, id, score, month, year):
     c.drawString(172, 195, data2)
 
     c.setFillColorRGB(0.2, 0.2, 0.2)
-    c.setFont('Vera', 14)
+    c.setFont('Vera', 11)
     c.drawString(145, 25.5, str(certificate_id))
 
     # Save all Canvas settings
